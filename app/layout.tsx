@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
-export const runtime = 'edge';
-
 export const metadata: Metadata = {
   title: 'Egypt Wear | متجر الملابس المصري العصري',
   description: 'منصة التجارة الإلكترونية المصرية المستقلة - أسرع تجربة تسوق بدون أي بطء',

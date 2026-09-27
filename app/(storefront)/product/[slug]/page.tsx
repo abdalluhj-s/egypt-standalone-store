@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
-export const runtime = 'edge';
 export const revalidate = 60;
 
 const FALLBACK_PRODUCTS_DETAILED: Record<string, any> = {
