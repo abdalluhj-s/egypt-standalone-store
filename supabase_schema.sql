@@ -1,19 +1,22 @@
 -- ==============================================================================
--- STANDALONE E-COMMERCE FOR EGYPT - COMPLETE SUPABASE MIGRATION
+-- STANDALONE E-COMMERCE FOR EGYPT - COMPLETE SUPABASE MIGRATION (V2 CLEAN)
 -- Paste this entire script into your Supabase SQL Editor and click 'Run'.
 -- ==============================================================================
 
 -- 1. Enable UUID Extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Enumerated Types
+-- 2. Enumerated Types (Safe creation)
 DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_payment_method') THEN
-        CREATE TYPE order_payment_method AS ENUM ('COD', 'InstaPay', 'Online');
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN
-        CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'shipped', 'cancelled');
-    END IF;
+    CREATE TYPE order_payment_method AS ENUM ('COD', 'InstaPay', 'Online');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'shipped', 'cancelled');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
 END $$;
 
 -- 3. Products Table
@@ -24,7 +27,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     description TEXT,
     category TEXT NOT NULL,
     base_price NUMERIC(10, 2) NOT NULL CHECK (base_price >= 0),
-    images TEXT[] DEFAULT ARRAY[]::TEXT[],
+    images TEXT[] DEFAULT '{}'::TEXT[],
     is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
@@ -183,80 +186,66 @@ CREATE POLICY "Admin view receipts"
 -- ==============================================================================
 -- 9. Sample Initial Products Seed (Egyptian Streetwear Collection)
 -- ==============================================================================
-DO $$
-DECLARE
-    prod1_id UUID;
-    prod2_id UUID;
-    prod3_id UUID;
-BEGIN
-    -- Product 1: Heavyweight Oversized Tee
-    IF NOT EXISTS (SELECT 1 FROM public.products WHERE slug = 'heavyweight-oversized-tee') THEN
-        INSERT INTO public.products (title, slug, description, category, base_price, images, is_active)
-        VALUES (
-            'تيشيرت أوفر سايز Heavyweight قطن مصري 100%',
-            'heavyweight-oversized-tee',
-            'تيشيرت أوفر سايز فاخر مصنوع من أجود أنواع القطن المصري المعالج ضد الانكماش بوزن 280 جرام.',
-            'Streetwear',
-            450.00,
-            ARRAY[
-                'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop'
-            ],
-            true
-        ) RETURNING id INTO prod1_id;
 
-        INSERT INTO public.product_variants (product_id, size, color, stock_quantity, price_override)
-        VALUES 
-            (prod1_id, 'M', 'Black', 2, NULL),
-            (prod1_id, 'L', 'Black', 15, NULL),
-            (prod1_id, 'XL', 'Black', 8, NULL),
-            (prod1_id, 'M', 'Off-White', 5, NULL),
-            (prod1_id, 'L', 'Off-White', 12, NULL),
-            (prod1_id, 'XL', 'Off-White', 1, NULL);
-    END IF;
+-- Product 1: Heavyweight Oversized Tee
+INSERT INTO public.products (id, title, slug, description, category, base_price, images, is_active)
+VALUES (
+    '11111111-1111-1111-1111-111111111111',
+    'تيشيرت أوفر سايز Heavyweight قطن مصري 100%',
+    'heavyweight-oversized-tee',
+    'تيشيرت أوفر سايز فاخر مصنوع من أجود أنواع القطن المصري المعالج ضد الانكماش بوزن 280 جرام.',
+    'Streetwear',
+    450.00,
+    ARRAY['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800', 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800'],
+    true
+)
+ON CONFLICT (slug) DO NOTHING;
 
-    -- Product 2: Premium Fleece Hoodie
-    IF NOT EXISTS (SELECT 1 FROM public.products WHERE slug = 'cairo-fleece-hoodie') THEN
-        INSERT INTO public.products (title, slug, description, category, base_price, images, is_active)
-        VALUES (
-            'سويت شيرت هودي ثقيل مطرز Cairo Edition',
-            'cairo-fleece-hoodie',
-            'هودي شتوي ثقيل مبطن بفرو ناعم مع تطريز راقي عالي الجودة وتصميم عصري مريح.',
-            'Winter Collection',
-            750.00,
-            ARRAY[
-                'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=800&auto=format&fit=crop'
-            ],
-            true
-        ) RETURNING id INTO prod2_id;
+INSERT INTO public.product_variants (product_id, size, color, stock_quantity, price_override)
+VALUES 
+    ('11111111-1111-1111-1111-111111111111', 'M', 'Black', 2, NULL),
+    ('11111111-1111-1111-1111-111111111111', 'L', 'Black', 15, NULL),
+    ('11111111-1111-1111-1111-111111111111', 'XL', 'Black', 8, NULL),
+    ('11111111-1111-1111-1111-111111111111', 'M', 'Off-White', 5, NULL),
+    ('11111111-1111-1111-1111-111111111111', 'L', 'Off-White', 12, NULL),
+    ('11111111-1111-1111-1111-111111111111', 'XL', 'Off-White', 1, NULL);
 
-        INSERT INTO public.product_variants (product_id, size, color, stock_quantity, price_override)
-        VALUES 
-            (prod2_id, 'L', 'Charcoal Grey', 10, NULL),
-            (prod2_id, 'XL', 'Charcoal Grey', 4, NULL),
-            (prod2_id, 'L', 'Dark Olive', 6, NULL);
-    END IF;
+-- Product 2: Fleece Hoodie
+INSERT INTO public.products (id, title, slug, description, category, base_price, images, is_active)
+VALUES (
+    '22222222-2222-2222-2222-222222222222',
+    'سويت شيرت هودي ثقيل مطرز Cairo Edition',
+    'cairo-fleece-hoodie',
+    'هودي شتوي ثقيل مبطن بفرو ناعم مع تطريز راقي عالي الجودة وتصميم عصري مريح.',
+    'Winter Collection',
+    750.00,
+    ARRAY['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800', 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=800'],
+    true
+)
+ON CONFLICT (slug) DO NOTHING;
 
-    -- Product 3: Minimal Cargo Pants
-    IF NOT EXISTS (SELECT 1 FROM public.products WHERE slug = 'urban-cargo-pants') THEN
-        INSERT INTO public.products (title, slug, description, category, base_price, images, is_active)
-        VALUES (
-            'بنطلون كارجو Urban عملي متعدد الجيوب',
-            'urban-cargo-pants',
-            'بنطلون كارجو مريح بجيوب عملية وخامة قطنية ممتازة تناسب الاستخدام اليومي الشاق.',
-            'Bottoms',
-            580.00,
-            ARRAY[
-                'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&auto=format&fit=crop'
-            ],
-            true
-        ) RETURNING id INTO prod3_id;
+INSERT INTO public.product_variants (product_id, size, color, stock_quantity, price_override)
+VALUES 
+    ('22222222-2222-2222-2222-222222222222', 'L', 'Charcoal Grey', 10, NULL),
+    ('22222222-2222-2222-2222-222222222222', 'XL', 'Charcoal Grey', 4, NULL),
+    ('22222222-2222-2222-2222-222222222222', 'L', 'Dark Olive', 6, NULL);
 
-        INSERT INTO public.product_variants (product_id, size, color, stock_quantity, price_override)
-        VALUES 
-            (prod3_id, '32', 'Khaki', 7, NULL),
-            (prod3_id, '34', 'Khaki', 14, NULL),
-            (prod3_id, '36', 'Khaki', 3, NULL);
-    END IF;
-END $$;
+-- Product 3: Cargo Pants
+INSERT INTO public.products (id, title, slug, description, category, base_price, images, is_active)
+VALUES (
+    '33333333-3333-3333-3333-333333333333',
+    'بنطلون كارجو Urban عملي متعدد الجيوب',
+    'urban-cargo-pants',
+    'بنطلون كارجو مريح بجيوب عملية وخامة قطنية ممتازة تناسب الاستخدام اليومي الشاق.',
+    'Bottoms',
+    580.00,
+    ARRAY['https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800'],
+    true
+)
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO public.product_variants (product_id, size, color, stock_quantity, price_override)
+VALUES 
+    ('33333333-3333-3333-3333-333333333333', '32', 'Khaki', 7, NULL),
+    ('33333333-3333-3333-3333-333333333333', '34', 'Khaki', 14, NULL),
+    ('33333333-3333-3333-3333-333333333333', '36', 'Khaki', 3, NULL);
