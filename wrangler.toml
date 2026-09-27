@@ -1,0 +1,9 @@
+name = "egypt-standalone-store"
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://your-supabase-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+NEXT_PUBLIC_STORE_WHATSAPP = "201012345678"
