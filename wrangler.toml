@@ -4,6 +4,7 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
 [vars]
-NEXT_PUBLIC_SUPABASE_URL = "https://your-supabase-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+NEXT_PUBLIC_SUPABASE_URL = "https://iafbgxyvuxlqjhhznseg.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_188JcMuPJanJBhk4LpsZFg__yb99T2a"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_188JcMuPJanJBhk4LpsZFg__yb99T2a"
 NEXT_PUBLIC_STORE_WHATSAPP = "201012345678"
