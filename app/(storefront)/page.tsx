@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Sparkles, ShieldCheck, Truck, Zap } from 'lucide-react';
 
+export const runtime = 'edge';
 export const revalidate = 60; // Edge ISR cache
 
 const FALLBACK_PRODUCTS = [
