@@ -1,0 +1,23 @@
+{
+  "name": "Egypt Fashion Store - متجر الملابس المصري",
+  "short_name": "EgyptWear",
+  "description": "متجر إلكتروني مصري سريع لتسوق أرقى الملابس القطنية والستريت وير",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=192&auto=format&fit=crop",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=512&auto=format&fit=crop",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
