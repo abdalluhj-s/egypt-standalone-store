@@ -94,44 +94,53 @@ export default function CheckoutPage() {
         }
       }
 
-      // Submit order to API route
-      const res = await fetch('/api/orders/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customer_name: customerName,
-          phone: phone.trim(),
-          governorate,
-          city,
-          address,
-          landmark: landmark || null,
-          payment_method: paymentMethod,
-          receipt_url: uploadedReceiptPath,
-          total_amount: grandTotal,
-          items: items.map((i) => ({
-            product_id: i.productId,
-            variant_id: i.variantId,
-            title: i.title,
-            size: i.size,
-            color: i.color,
-            quantity: i.quantity,
-            price: i.price,
-          })),
-        }),
-      });
+      const supabase = createClient();
+      const newOrder = {
+        customer_name: customerName,
+        phone: phone.trim(),
+        governorate,
+        city,
+        address,
+        landmark: landmark || null,
+        payment_method: paymentMethod,
+        receipt_url: uploadedReceiptPath,
+        total_amount: grandTotal,
+        items: items.map((i) => ({
+          product_id: i.productId,
+          variant_id: i.variantId,
+          title: i.title,
+          size: i.size,
+          color: i.color,
+          quantity: i.quantity,
+          price: i.price,
+        })),
+        status: 'pending'
+      };
 
-      const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.error || 'حدث خطأ أثناء تسجيل الطلب، يرجى المحاولة لاحقاً');
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert(newOrder)
+        .select('id')
+        .single();
+
+      if (orderError || !orderData) {
+        throw new Error(orderError?.message || 'حدث خطأ أثناء تسجيل الطلب، يرجى المحاولة لاحقاً');
       }
 
       clearCart();
 
+      const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '201000000000';
+      let message = `مرحباً، أود تأكيد طلبي الجديد.\n`;
+      message += `رقم الطلب: ${orderData.id.slice(0, 8)}\n`;
+      message += `الاسم: ${customerName}\n`;
+      message += `المبلغ الإجمالي: ${grandTotal} ج.م\n`;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
       // Redirect to WhatsApp or Success Confirmation Page
-      if (result.whatsappUrl) {
-        window.location.href = result.whatsappUrl;
+      if (whatsappUrl) {
+        window.location.href = whatsappUrl;
       } else {
-        router.push(`/order-success?id=${result.orderId}`);
+        router.push(`/order-success?id=${orderData.id}`);
       }
     } catch (err: any) {
       setErrorMsg(err.message);

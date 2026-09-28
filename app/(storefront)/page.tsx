@@ -1,8 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import ProductCard from '@/components/storefront/ProductCard';
 import { Sparkles, ShieldCheck, Truck, Zap } from 'lucide-react';
-
-export const revalidate = 60; // ISR cache
 
 const FALLBACK_PRODUCTS = [
   {
@@ -53,23 +54,28 @@ const FALLBACK_PRODUCTS = [
   },
 ];
 
-export default async function HomePage() {
-  let products = FALLBACK_PRODUCTS;
+export default function HomePage() {
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
 
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('products')
-      .select('id, title, slug, base_price, images, category, is_active')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('products')
+          .select('id, title, slug, base_price, images, category, is_active')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      products = data as any;
+        if (!error && data && data.length > 0) {
+          setProducts(data as any);
+        }
+      } catch {
+        // Use fallback products
+      }
     }
-  } catch {
-    // If Supabase not connected yet, use fallback products
-  }
+    fetchProducts();
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-10">
